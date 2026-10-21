@@ -4,6 +4,16 @@ Una aplicación móvil moderna para Android desarrollada con **Kotlin**, **Jetpa
 
 ---
 
+## 📸 Capturas de Pantalla
+
+<p align="center">
+  <img src="screenshots/movies_home.png" width="1080" alt="Home Screen" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="screenshots/movies_search.png" width="1080" alt="Search Screen" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="screenshots/movies_favorites.png" width="1080" alt="Favorites Screen" />
+</p>
+
 ## 🚀 Características Principales
 
 - **🧭 Home Dinámico & Múltiples Categorías:** Explora películas en cines, próximos estrenos, mejor valoradas y populares a través de carruseles horizontales fluidos y un banner de contenido destacado.
