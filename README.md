@@ -10,13 +10,13 @@ de IA.
 ## 📸 Capturas de Pantalla
 
 <p align="center">
-  <img src="screenshots/movies_home.png" width="23%" alt="Home Screen" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/movies_detail.png" width="23%" alt="Movie Detail Screen" />
-&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/movies_search.png" width="23%" alt="Search Screen" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/movies_favorites.png" width="23%" alt="Favorites Screen" />
+  <img src="screenshots/movies_home.png" width="22%" alt="Home Screen" />
+  &nbsp;
+  <img src="screenshots/movies_detail.png" width="22%" alt="Movie Detail Screen" />
+&nbsp;
+  <img src="screenshots/movies_search.png" width="22%" alt="Search Screen" />
+  &nbsp;
+  <img src="screenshots/movies_favorites.png" width="22%" alt="Favorites Screen" />
 </p>
 
 ## 🚀 Características Principales
