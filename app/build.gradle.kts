@@ -15,7 +15,7 @@ val localProperties = Properties().apply {
     }
 }
 
-val tmdbApiKey = localProperties.getProperty("tmdb.api.key", "")
+val tmdbApiKey = localProperties.getProperty("tmdb.api.key", "6a66b5beb27b6bb1e9fd43f854be7b3f")
 
 android {
     namespace = "com.example.moviesai"
@@ -36,7 +36,6 @@ android {
         // Configuración para la API KEY de TMDb (se recomienda usar local.properties en producción)
         buildConfigField("String", "TMDB_BASE_URL", "\"https://api.themoviedb.org/3/\"")
         buildConfigField("String", "TMDB_IMAGE_BASE_URL", "\"https://image.tmdb.org/t/p/w500\"")
-        buildConfigField("String", "TMDB_API_KEY", "\"6a66b5beb27b6bb1e9fd43f854be7b3f\"")
         buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
     }
 
@@ -55,6 +54,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += "-opt-in=androidx.compose.animation.ExperimentalSharedTransitionApi"
     }
     buildFeatures {
         compose = true
@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     debugImplementation(libs.androidx.ui.tooling)
