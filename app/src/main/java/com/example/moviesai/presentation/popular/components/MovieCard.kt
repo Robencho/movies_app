@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.example.moviesai.presentation.popular.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.moviesai.domain.model.Movie
+import com.example.moviesai.presentation.common.LocalAnimatedVisibilityScope
+import com.example.moviesai.presentation.common.LocalSharedTransitionScope
+import com.example.moviesai.presentation.common.MovieSharedBoundsTransform
 import com.example.moviesai.ui.theme.CinemaBlack
 import com.example.moviesai.ui.theme.CinemaGold
 import com.example.moviesai.ui.theme.MoviesAiTheme
@@ -43,8 +52,34 @@ import java.util.Locale
 fun MovieCard(
     movie: Movie,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    sharedTransitionScope: SharedTransitionScope? = LocalSharedTransitionScope.current,
+    animatedVisibilityScope: AnimatedVisibilityScope? = LocalAnimatedVisibilityScope.current
 ) {
+    val posterSharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                state = rememberSharedContentState(key = "movie_poster_${movie.id}"),
+                animatedVisibilityScope = animatedVisibilityScope,
+                boundsTransform = MovieSharedBoundsTransform
+            )
+        }
+    } else {
+        Modifier
+    }
+
+    val titleSharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedBounds(
+                sharedContentState = rememberSharedContentState(key = "movie_title_${movie.id}"),
+                animatedVisibilityScope = animatedVisibilityScope,
+                boundsTransform = MovieSharedBoundsTransform
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Card(
         onClick = { onClick?.invoke() },
         enabled = onClick != null,
@@ -58,7 +93,7 @@ fun MovieCard(
             .aspectRatio(2f / 3f)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Poster Image
+            // Poster Image with Shared Element Transition
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(movie.posterUrl.ifBlank { null })
@@ -68,7 +103,10 @@ fun MovieCard(
                     .build(),
                 contentDescription = movie.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(posterSharedModifier)
+                    .clip(RoundedCornerShape(16.dp))
             )
 
             // Smooth vertical gradient overlay at the bottom for readability
@@ -94,7 +132,8 @@ fun MovieCard(
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = titleSharedModifier
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))

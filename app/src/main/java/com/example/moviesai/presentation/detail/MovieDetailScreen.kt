@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.example.moviesai.presentation.detail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -65,7 +70,10 @@ import com.example.moviesai.data.mapper.toMovie
 import com.example.moviesai.domain.model.CastMember
 import com.example.moviesai.domain.model.Movie
 import com.example.moviesai.domain.model.MovieDetail
+import com.example.moviesai.presentation.common.LocalAnimatedVisibilityScope
+import com.example.moviesai.presentation.common.LocalSharedTransitionScope
 import com.example.moviesai.presentation.common.MovieDetailShimmer
+import com.example.moviesai.presentation.common.MovieSharedBoundsTransform
 import com.example.moviesai.presentation.popular.components.MovieCard
 import com.example.moviesai.ui.theme.CinemaBlack
 import com.example.moviesai.ui.theme.CinemaBorder
@@ -83,6 +91,8 @@ fun MovieDetailScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     onMovieClick: ((Movie) -> Unit)? = null,
+    sharedTransitionScope: SharedTransitionScope? = LocalSharedTransitionScope.current,
+    animatedVisibilityScope: AnimatedVisibilityScope? = LocalAnimatedVisibilityScope.current,
     viewModel: MovieDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,6 +105,8 @@ fun MovieDetailScreen(
         onToggleFavorite = { movie -> viewModel.toggleFavorite(movie) },
         onRetry = { viewModel.retry() },
         onMovieClick = onMovieClick,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         modifier = modifier
     )
 }
@@ -108,7 +120,9 @@ fun MovieDetailContent(
     modifier: Modifier = Modifier,
     isFavorite: Boolean = false,
     onToggleFavorite: ((Movie) -> Unit)? = null,
-    onMovieClick: ((Movie) -> Unit)? = null
+    onMovieClick: ((Movie) -> Unit)? = null,
+    sharedTransitionScope: SharedTransitionScope? = LocalSharedTransitionScope.current,
+    animatedVisibilityScope: AnimatedVisibilityScope? = LocalAnimatedVisibilityScope.current
 ) {
     Scaffold(
         containerColor = CinemaBlack,
@@ -209,6 +223,31 @@ fun MovieDetailContent(
                                     .align(Alignment.TopEnd)
                             )
 
+                            // Shared Element Modifiers for Poster & Title
+                            val posterSharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                                with(sharedTransitionScope) {
+                                    Modifier.sharedElement(
+                                        state = rememberSharedContentState(key = "movie_poster_${movie.id}"),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        boundsTransform = MovieSharedBoundsTransform
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            }
+
+                            val titleSharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                                with(sharedTransitionScope) {
+                                    Modifier.sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "movie_title_${movie.id}"),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        boundsTransform = MovieSharedBoundsTransform
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            }
+
                             // Floating Poster overlapping the bottom of the backdrop header
                             Card(
                                 shape = RoundedCornerShape(16.dp),
@@ -229,7 +268,10 @@ fun MovieDetailContent(
                                         .build(),
                                     contentDescription = movie.title,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .then(posterSharedModifier)
+                                        .clip(RoundedCornerShape(16.dp))
                                 )
                             }
 
@@ -244,7 +286,8 @@ fun MovieDetailContent(
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = CinemaTextPrimary,
-                                    maxLines = 3
+                                    maxLines = 3,
+                                    modifier = titleSharedModifier
                                 )
 
                                 Spacer(modifier = Modifier.height(6.dp))
